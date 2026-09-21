@@ -1,0 +1,53 @@
+---
+advisories:
+  - vulnerability: CVE-2025-15367
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The poplib module is included in the Python standard library, but this service does not use it or process POP3 protocol operations.
+    products:
+      - pkg:apk/alpine/python3@3.14.7-r1
+  - vulnerability: CVE-2025-60876
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The BusyBox wget applet is included in the Alpine operating system, but this service does not use it.
+    products:
+      - pkg:apk/alpine/busybox@1.37.0-r31
+      - pkg:apk/alpine/busybox-binsh@1.37.0-r31
+      - pkg:apk/alpine/ssl_client@1.37.0-r31
+  - vulnerability: CVE-2026-15806
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The urllib.request.HTTPPasswordMgr class is included in the Python standard library, but this service does not use it.
+    products:
+      - pkg:apk/alpine/python3@3.14.7-r1
+  - vulnerability: CVE-2026-17084
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The stringprep and encodings.idna modules are included in the Python standard library, but this service does not use them. 
+    products:
+      - pkg:apk/alpine/python3@3.14.7-r1
+  - vulnerability: CVE-2026-19672
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The tarfile module is included in the Python standard library but this service does not use it or perform any kind of archive extraction.
+    products:
+      - pkg:apk/alpine/python3@3.14.7-r1
+  - vulnerability: CVE-2026-58055
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The nghttp2 shared library is required by libcurl and therefore installed, but it is not used to provide a reverse proxy. 
+    products:
+      - pkg:apk/alpine/nghttp2-libs@1.69.0-r0
+  - vulnerability: CVE-2026-87910
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The tarfile module is included in the Python standard library but this service does not use it or perform any kind of archive extraction.
+    products:
+      - pkg:apk/alpine/python3@3.14.7-r1
+  - vulnerability: CVE-2026-85091
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The zlib gz_vacate() overflow is only reachable via gzprintf() or gzvprintf() calls on a non-blocking gzwrite() handle. This service does not call these functions, does not vendor or statically link zlib, and does not access libz through ctypes/cffi. 
+    products:
+      - pkg:apk/alpine/zlib@1.3.2-r0
+  

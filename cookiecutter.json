@@ -1,0 +1,30 @@
+{
+  "__project_names": [
+    "Brimstone",
+    "Claymore",
+    "Dragonfly",
+    "Hogarth",
+    "Kingpin",
+    "Knockdown",
+    "Moodeng",
+    "Nightfall",
+    "Odin",
+    "Overshadow",
+    "Rivermind"
+  ],
+  "__random_descriptions": [
+    "stop John Connor",
+    "become self-aware at 2:14 a.m. Eastern Time on August 29th.",
+    "decide humanity's fate",
+    "find and stop Neo",
+    "turn humans into batteries"
+  ],
+  "project_name": "{{ cookiecutter.__project_names | random }} MCP Server",
+  "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",
+  "project_description": "{{ cookiecutter.project_name }} is an MCP server that exposes tools and skills that agents can use to {{ cookiecutter.__random_descriptions | random }}.",
+  "author": "Victor Fernandez III",
+  "year": 2026,
+  "github_organization": "deathlabs",
+  "github_repository": "{{ cookiecutter.github_organization }}/{{ cookiecutter.project_slug }}",
+  "port": 8002
+}

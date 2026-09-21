@@ -1,0 +1,8 @@
+[project]
+name = "shinobi-mcp"
+version = "0.1.0"
+requires-python = ">=3.14"
+dependencies = [
+    "defusedxml>=0.7.1",
+    "fastmcp",
+]

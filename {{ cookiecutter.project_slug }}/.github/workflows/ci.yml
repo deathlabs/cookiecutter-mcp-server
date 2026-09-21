@@ -1,0 +1,95 @@
+{% raw %}
+---
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - "**"
+
+  workflow_dispatch:
+    inputs:
+      sbom_scan_failure_threshold:
+        description: "Threshold to fail the SBOM scan."
+        type: choice
+        options:
+          - low
+          - medium
+          - high
+          - critical
+        default: medium
+
+  schedule:
+    - cron: "00 12 * * *"
+
+jobs:
+  ci:
+    name: CI Pipeline
+    runs-on: ubuntu-latest
+
+    env:
+      GRYPE_FAILURE_THRESHOLD: ${{ github.event.inputs.sbom_scan_failure_threshold || 'medium' }}
+
+    steps:
+      - name: Clone Repository
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+
+      - name: Set Up Docker Compose
+        uses: docker/setup-compose-action@v2
+
+      - name: Set Up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v10.1.0
+        with:
+          version: latest-known
+
+      - name: Install Python Tools
+        run: |
+          uv tool install ruff
+          uv tool install semgrep
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+
+      - name: Install yq
+        run: |
+          sudo wget \
+            https://github.com/mikefarah/yq/releases/download/v4.53.6/yq_linux_amd64 \
+            -O /usr/local/bin/yq
+          sudo chmod +x /usr/local/bin/yq
+
+      - name: Install TruffleHog
+        run: |
+          curl -sSfL \
+            https://raw.githubusercontent.com/trufflesecurity/trufflehog/main/scripts/install.sh \
+            | sudo sh -s -- -b /usr/local/bin v3.97.5
+
+      - name: Install Hadolint
+        run: |
+          sudo wget \
+            https://github.com/hadolint/hadolint/releases/download/v2.15.1/hadolint-Linux-x86_64 \
+            -O /usr/local/bin/hadolint
+          sudo chmod +x /usr/local/bin/hadolint
+
+      - name: Install Syft
+        id: syft
+        uses: anchore/sbom-action/download-syft@v0.24.0
+
+      - name: Add Syft to PATH
+        run: echo "$(dirname '${{ steps.syft.outputs.cmd }}')" >> "$GITHUB_PATH"
+
+      - name: Install Grype
+        id: grype
+        uses: anchore/scan-action/download-grype@v7.4.0
+
+      - name: Add Grype to PATH
+        run: echo "$(dirname '${{ steps.grype.outputs.cmd }}')" >> "$GITHUB_PATH"
+
+      - name: Configure Environment
+        run: cp src/.env.example src/.env
+
+      - name: Run CI Pipeline
+        run: make tests
+{% endraw %}
