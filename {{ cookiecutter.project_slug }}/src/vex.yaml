@@ -50,4 +50,9 @@ advisories:
     impact_statement: The zlib gz_vacate() overflow is only reachable via gzprintf() or gzvprintf() calls on a non-blocking gzwrite() handle. This service does not call these functions, does not vendor or statically link zlib, and does not access libz through ctypes/cffi. 
     products:
       - pkg:apk/alpine/zlib@1.3.2-r0
-  
+  - vulnerability: GHSA-g6cj-pr64-35w5
+    status: not_affected
+    justification: vulnerable_code_not_in_execute_path
+    impact_statement: The cryptography package is installed, but this service does not call the pkcs7_decrypt_der(), pkcs7_decrypt_pem(), or pkcs7_decrypt_smime() functions or decrypt user-supplied PKCS#7 EnvelopedData.
+    products:
+      - pkg:pypi/cryptography@49.0.0

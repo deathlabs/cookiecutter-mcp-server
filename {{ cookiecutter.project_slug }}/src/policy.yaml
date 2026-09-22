@@ -1,10 +1,10 @@
 ---
 apiVersion: governance.toolkit/v1
-name: security-policy
+name: default-security-policy
 default_action: deny
 rules:
   - name: block-destructive
-    condition: "action.type in ['drop', 'delete', 'truncate']"
+    condition: "action.type in ['edit', 'delete', 'drop', 'destroy', 'remove']"
     action: deny
     description: "Destructive operations require human approval"
   - name: require-approval-for-send

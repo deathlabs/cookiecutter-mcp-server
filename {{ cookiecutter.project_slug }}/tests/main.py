@@ -52,5 +52,6 @@ async def main() -> None:
 
     print(f"[+] The {SERVER} is up-up")
 
+
 if __name__ == "__main__":
     run(main())

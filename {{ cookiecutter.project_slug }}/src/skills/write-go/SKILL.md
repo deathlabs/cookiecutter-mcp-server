@@ -1,6 +1,6 @@
 ---
-name: go-style
-description: Go code style conventions to apply when writing or reviewing Go source — variable declarations, error handling, CLI command structure, and struct tags.
+name: write-go
+description: Write, revise, or review Go code in our preferred style. Use this skill whenever creating or modifying Go files, examples, tests, command-line tools, APIs, MCP servers, or code snippets.
 ---
 
 ## Variable declarations

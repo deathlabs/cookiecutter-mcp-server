@@ -1,15 +1,9 @@
 {
   "__project_names": [
-    "Optimus",
-    "Sentinel",
     "Shockwave",
     "Megatron",
     "Starscream",
     "Soundwave",
-    "Bumblebee",
-    "Ironhide",
-    "Ratchet",
-    "Grimlock",
     "Devastator",
     "Trypticon",
     "Ravage",
@@ -29,14 +23,10 @@
   ],
   "__random_descriptions": [
     "stop the Autobots",
-    "stop the Decepticons",
-    "stop the Predacons",
+    "help the Decepticons",
     "stop the Maximals",
-    "stop the Vehicons",
-    "stop the Terrorcons",
-    "stop the Insecticons",
-    "stop the Stunticons",
-    "stop the Combaticons"
+    "help the Terrorcons",
+    "help the Insecticons"
   ],
   "project_name": "{{ cookiecutter.__project_names | random }}",
   "project_slug": "{{ cookiecutter.project_name.lower().replace(' ', '_') }}",

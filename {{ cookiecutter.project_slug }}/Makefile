@@ -1,12 +1,12 @@
 # ---------------------------------------------------------
-# Misc.
+# Default settings.
 # ---------------------------------------------------------
 
 # Use Bash as the default shell.
 SHELL := /bin/bash
 
 # Set the default Make target.
-.DEFAULT_GOAL := tests
+.DEFAULT_GOAL := test-container
 
 # Normalize the workspace path and expose it to Docker Compose.
 WORKSPACE ?= $(CURDIR)
@@ -16,26 +16,19 @@ export MCP_SERVER_WORKSPACE
 # Tell Docker Compose to use Bake for builds.
 export COMPOSE_BAKE := true
 
-# Set the Docker Compose profile.
+# Set the default Docker Compose profile.
 DOCKER_COMPOSE_PROFILE ?= all
 
-# Centralize the Docker Compose command.
-COMPOSE := docker compose --profile $(DOCKER_COMPOSE_PROFILE)
+# Set Docker build context and image reference.
+BUILD_CONTEXT := src
+DOCKERFILE_PATH :=$(BUILD_CONTEXT)/Dockerfile
+IMAGE_REF := {{ cookiecutter.project_slug }}/mcp:latest
+CONTAINER_NAME := {{ cookiecutter.project_slug }}_mcp
 
-# Set the Docker Compose service.
-MCP_SERVER := {{ cookiecutter.project_slug }}
-
-# Get service configuration from Docker Compose.
-BUILD_CONTEXT := $(shell $(COMPOSE) config --format json | \
-	yq -r '.services."$(MCP_SERVER)".build.context')
-IMAGE_REF := $(shell $(COMPOSE) config --format json | \
-	yq -r '.services."$(MCP_SERVER)".image')
-
-# Set artifact paths.
-DOCKERFILE_PATH := $(BUILD_CONTEXT)/Dockerfile
-SBOM_PATH := $(MCP_SERVER)-sbom.json
-VEX_YAML_PATH := $(BUILD_CONTEXT)/vex.yaml
-VEX_JSON_PATH := $(BUILD_CONTEXT)/vex.json
+# Set SBOM and VEX file paths.
+SBOM_PATH := {{ cookiecutter.project_slug }}-sbom.json
+VEX_YAML_PATH :=$(BUILD_CONTEXT)/vex.yaml
+VEX_JSON_PATH :=$(BUILD_CONTEXT)/vex.json
 
 # Set VEX metadata.
 VEX_AUTHOR ?= {{ cookiecutter.author }}
@@ -65,8 +58,8 @@ validate-workspace:
 .PHONY: lock
 .SILENT: lock
 lock:
-	echo "[*] Locking $(MCP_SERVER) Python dependencies"
-	cd "$(BUILD_CONTEXT)" && uv lock
+	echo "[*] Locking {{ cookiecutter.project_slug }} Python dependencies"
+	cd $(BUILD_CONTEXT) && uv lock
 
 # ---------------------------------------------------------
 # Check the source code for quality.
@@ -75,8 +68,8 @@ lock:
 .PHONY: check
 .SILENT: check
 check:
-	echo "[*] Checking $(MCP_SERVER) source code quality"
-	ruff check --fix "$(BUILD_CONTEXT)"
+	echo "[*] Checking {{ cookiecutter.project_slug }}'s source code quality"
+	ruff check --fix $(BUILD_CONTEXT)
 
 # ---------------------------------------------------------
 # Format the source code.
@@ -85,8 +78,8 @@ check:
 .PHONY: format
 .SILENT: format
 format:
-	echo "[*] Formatting $(MCP_SERVER) source code"
-	ruff format "$(BUILD_CONTEXT)"
+	echo "[*] Formatting {{ cookiecutter.project_slug }}'s source code"
+	ruff format $(BUILD_CONTEXT)
 
 # ---------------------------------------------------------
 # Check the repository for secrets.
@@ -95,7 +88,7 @@ format:
 .PHONY: secrets
 .SILENT: secrets
 secrets:
-	echo "[*] Scanning the $(MCP_SERVER) source code for secrets"
+	echo "[*] Checking {{ cookiecutter.project_slug }}'s source code for hardcoded secrets"
 	trufflehog filesystem \
 		--no-update \
 		--fail \
@@ -111,30 +104,30 @@ secrets:
 .PHONY: dockerfile-lint
 .SILENT: dockerfile-lint
 dockerfile-lint:
-	echo "[*] Checking the $(MCP_SERVER) Dockerfile for quality"
+	echo "[*] Checking {{ cookiecutter.project_slug }}'s Dockerfile for lint"
 	hadolint \
 		--failure-threshold "$(HADOLINT_FAILURE_THRESHOLD)" \
 		"$(DOCKERFILE_PATH)"
 
 # ---------------------------------------------------------
-# Check the source code for vulnerabilities.
+# Check for first-party vulnerabilities.
 # ---------------------------------------------------------
 
 .PHONY: sast
 .SILENT: sast
 sast:
-	echo "[*] Checking the $(MCP_SERVER) source code for vulnerabilities"
-	semgrep scan --config "$(SEMGREP_CONFIG)" "$(BUILD_CONTEXT)"
+	echo "[*] Checking {{ cookiecutter.project_slug }}'s source code for first-party vulnerabilities"
+	semgrep scan --config "$(SEMGREP_CONFIG)" $(BUILD_CONTEXT)
 
 # ---------------------------------------------------------
 # Build the container image.
 # ---------------------------------------------------------
 
-.PHONY: build-containers
-.SILENT: build-containers
-build-containers: lock check format secrets dockerfile-lint sast
-	echo "[*] Building the $(MCP_SERVER) container image"
-	$(COMPOSE) build $(MCP_SERVER)
+.PHONY: build-container
+.SILENT: build-container
+build-container: lock check format secrets dockerfile-lint sast
+	echo "[*] Building {{ cookiecutter.project_slug }}'s container image"
+	docker compose --profile $(DOCKER_COMPOSE_PROFILE) build {{ cookiecutter.project_slug }}
 
 # ---------------------------------------------------------
 # Generate a VEX file for the container image.
@@ -170,7 +163,7 @@ export VEX_FILTER
 .PHONY: vex
 .SILENT: vex
 vex:
-	echo "[*] Generating VEX for $(MCP_SERVER)"
+	echo "[*] Generating {{ cookiecutter.project_slug }}'s VEX statements"
 	VEX_ID="$(VEX_ID_BASE)" \
 	VEX_AUTHOR="$(VEX_AUTHOR)" \
 	VEX_TIMESTAMP="$$(date -u +'%Y-%m-%dT%H:%M:%SZ')" \
@@ -182,12 +175,12 @@ vex:
 
 .PHONY: sbom
 .SILENT: sbom
-sbom: build-containers
-	echo "[*] Generating SBOM for $(MCP_SERVER)"
-	syft "$(IMAGE_REF)" -o cyclonedx-json="$(SBOM_PATH)"
+sbom: build-container
+	echo "[*] Generating {{ cookiecutter.project_slug }}'s SBOM"
+	syft {{ cookiecutter.project_slug }}/mcp:latest -o cyclonedx-json="$(SBOM_PATH)"
 
 # ---------------------------------------------------------
-# Scan the container image's dependencies for CVEs.
+# Check for third-party vulnerabilities.
 # ---------------------------------------------------------
 
 .PHONY: dependency-scan
@@ -195,45 +188,64 @@ sbom: build-containers
 dependency-scan: sbom vex
 	echo "[*] Updating the Grype vulnerability database"
 	grype db update
-	echo "[*] Scanning dependencies for $(MCP_SERVER)"
+	echo "[*] Checking {{ cookiecutter.project_slug }}'s SBOM for third-party vulnerabilities"
 	grype sbom:"$(SBOM_PATH)" \
 		--vex "$(VEX_JSON_PATH)" \
 		--fail-on "$(GRYPE_FAILURE_THRESHOLD)"
 
 # ---------------------------------------------------------
-# Start the containers.
+# Start the container.
 # ---------------------------------------------------------
 
-.PHONY: start-containers
-.SILENT: start-containers
-start-containers: validate-workspace dependency-scan
-	echo "[*] Using workspace: $(MCP_SERVER_WORKSPACE)"
-	$(COMPOSE) up -d
+.PHONY: start-container
+.SILENT: start-container
+start-container: validate-workspace dependency-scan
+	docker compose --profile $(DOCKER_COMPOSE_PROFILE) up -d
 
 # ---------------------------------------------------------
-# Stop the containers.
+# Check the status of the container.
 # ---------------------------------------------------------
 
-.PHONY: stop-containers
-.SILENT: stop-containers
-stop-containers:
-	$(COMPOSE) down
-
-# ---------------------------------------------------------
-# Check the status of the containers.
-# ---------------------------------------------------------
-
+{% raw %}
 .PHONY: status
 .SILENT: status
 status:
-	$(COMPOSE) ps --format "table {% raw %}{{.Name}}\t{{.Ports}}\t{{.Status}}{% endraw %}"
+	docker compose --profile $(DOCKER_COMPOSE_PROFILE) ps --format "table {{.Name}}\t{{.Ports}}\t{{.Status}}"
+{% endraw %}
 
 # ---------------------------------------------------------
-# Test the containers.
+# Test the container.
 # ---------------------------------------------------------
 
-.PHONY: tests
-.SILENT: tests
-tests: start-containers
-	echo "[*] Running tests for $(MCP_SERVER)"
+.PHONY: test-container
+.SILENT: test-container
+test-container: start-container
+	echo "[*] Testing {{ cookiecutter.project_slug }}"
 	cd tests && uv run python main.py
+
+# ---------------------------------------------------------
+# Stop the container.
+# ---------------------------------------------------------
+
+.PHONY: stop-container
+.SILENT: stop-container
+stop-container:
+	docker container stop ${CONTAINER_NAME}
+
+# ---------------------------------------------------------
+# Remove the container.
+# ---------------------------------------------------------
+
+.PHONY: remove-container
+.SILENT: remove-container
+remove-container:
+	docker container rm ${CONTAINER_NAME}
+
+# ---------------------------------------------------------
+# Remove the container image.
+# ---------------------------------------------------------
+
+.PHONY: remove-container-image
+.SILENT: remove-container-image
+remove-container-image:
+	docker image rm ${IMAGE_REF}

@@ -3,6 +3,7 @@ LABEL image.authors="{{ cookiecutter.author }}"
 WORKDIR /home/{{ cookiecutter.project_slug }}/
 COPY pyproject.toml pyproject.toml
 COPY main.py main.py
+COPY policy.yaml policy.yaml
 COPY skills/ skills/
 COPY tools/ tools/
 COPY uv.lock uv.lock

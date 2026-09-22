@@ -1,6 +1,6 @@
 # Standard library imports.
+from functools import wraps
 from os import environ
-from pathlib import Path
 
 # Third party imports.
 from agentmesh.governance import govern
@@ -12,36 +12,70 @@ from starlette.responses import JSONResponse
 # Local imports.
 from tools import TOOLS
 
-# Constants.
-BASE_DIRECTORY = Path(__file__).parent
-POLICY_PATH = BASE_DIRECTORY / "policy.yml"
+SECURITY_POLICY_FILE_PATH = "policy.yaml"
+SKILLS_DIRECTORY = "skills"
+
+
+def get_security_policy(file_path: str = SECURITY_POLICY_FILE_PATH) -> str:
+    """Read the security policy from the provided file path.
+
+    Returns:
+        The security policy as a string.
+    """
+    with open(file=file_path, encoding="UTF-8", mode="r") as policy_file:
+        return policy_file.read()
+
+
+def defang(fn: callable, policy: str, agent_id: str) -> callable:
+    """Wrap a function with governance checks.
+
+    Args:
+        fn: The function to wrap.
+        policy: The security policy to enforce.
+        agent_id: The ID of the agent to enforce the policy for.
+
+    Returns:
+        A wrapped function that enforces the security policy.
+
+    """
+    governor = govern(fn=fn, policy=policy, agent_id=agent_id)
+
+    @wraps(fn)
+    def defanged_tool(*args, **kwargs):
+        return governor(*args, **kwargs)
+
+    return defanged_tool
 
 
 def main() -> None:
     """Start the MCP server."""
 
-    # Get the FASTMCP_PORT environment variable.
+    # Check if the FASTMCP_PORT environment variable is set.
     if "FASTMCP_PORT" not in environ:
-        raise RuntimeError("FASTMCP_PORT environment variable is not set.")
+        raise RuntimeError("The FASTMCP_PORT environment variable is not set.")
 
+    # Get the FASTMCP_PORT environment variable.
     fastmcp_port = int(environ["FASTMCP_PORT"])
 
     # Init an MCP server.
     mcp = FastMCP(name="{{ cookiecutter.project_slug }}")
 
-    # Govern and register tools with the MCP server.
+    # Read the policy file.
+    policy = get_security_policy()
+
+    # Register tools with the MCP server.
     for tool in TOOLS:
-        governed_tool = govern(
-            tool,
-            policy=str(POLICY_PATH),
+        safe_tool = defang(
+            fn=tool,
+            policy=policy,
             agent_id="{{ cookiecutter.project_slug }}",
         )
-        mcp.add_tool(governed_tool)
+        mcp.add_tool(safe_tool)
 
     # Register skills with the MCP server.
     mcp.add_provider(
         SkillsDirectoryProvider(
-            roots=BASE_DIRECTORY / "skills",
+            roots=SKILLS_DIRECTORY,
         )
     )
 

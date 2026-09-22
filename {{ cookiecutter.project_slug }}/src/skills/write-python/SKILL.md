@@ -1,6 +1,6 @@
 ---
-name: python-writing-style
-description: Write, revise, or review Python code in Vic's preferred style. Use this skill whenever creating or modifying Python files, examples, tests, command-line tools, APIs, MCP servers, or code snippets.
+name: write-python
+description: Write, revise, or review Python code in our preferred style. Use this skill whenever creating or modifying Python files, examples, tests, command-line tools, APIs, MCP servers, or code snippets.
 ---
 
 # Python Writing Style

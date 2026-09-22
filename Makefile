@@ -1,16 +1,46 @@
+# ---------------------------------------------------------
+# Misc.
+# ---------------------------------------------------------
+
+.DEFAULT_GOAL := build
 TEMPLATE_DIR := .
-BUILD_DIR := .test_output
+BUILD_DIR := build
+TEMP_DIR := test
 
-.PHONY: all test clean
+# ---------------------------------------------------------
+# Build a new project.
+# ---------------------------------------------------------
 
-all: test
+.PHONY: build
+.SILENT: build
+build: clean
+	cookiecutter $(TEMPLATE_DIR) --no-input -o $(BUILD_DIR)
+	TARGET_DIR=$$(ls -d $(BUILD_DIR)/* | head -n 1) &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" stop-container &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container-image 
 
-test: clean
-	@cookiecutter $(TEMPLATE_DIR) --no-input -o $(BUILD_DIR)
-	@TARGET_DIR=$$(ls -d $(BUILD_DIR)/* | head -n 1); \
-	$(MAKE) --no-print-directory -C "$$TARGET_DIR"
-	@$(MAKE) --no-print-directory clean
-	@echo "[+] Test completed and cleaned up."
+# ---------------------------------------------------------
+# Test the cookiecutter template.
+# ---------------------------------------------------------
 
+.PHONY: test
+.SILENT: test
+test: 
+	cookiecutter $(TEMPLATE_DIR) --no-input -o $(TEMP_DIR)
+	TARGET_DIR=$$(ls -d $(TEMP_DIR)/* | head -n 1) &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" stop-container &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container &&\
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container-image &&\
+	$(MAKE) --no-print-directory clean
+
+# ---------------------------------------------------------
+# Clean the build directory.
+# ---------------------------------------------------------
+
+.PHONY: clean
+.SILENT: clean
 clean:
-	@rm -rf $(BUILD_DIR)
+	rm -rf $(TEMP_DIR)

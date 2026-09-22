@@ -1,10 +1,9 @@
 [project]
-name = "shinobi-mcp"
+name = "{{ cookiecutter.project_slug }}"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "agent-governance-toolkit[full]",
-    "cryptography>=50.0.0",
+    "agent-governance-toolkit-core",
     "defusedxml",
     "fastmcp",
 ]

@@ -1,5 +1,5 @@
 [project]
-name = "shinobi-mcp-tests"
+name = "{{ cookiecutter.project_slug }}-tests"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
