@@ -3,6 +3,8 @@ name = "shinobi-mcp"
 version = "0.1.0"
 requires-python = ">=3.14"
 dependencies = [
-    "defusedxml>=0.7.1",
+    "agent-governance-toolkit[full]",
+    "cryptography>=50.0.0",
+    "defusedxml",
     "fastmcp",
 ]

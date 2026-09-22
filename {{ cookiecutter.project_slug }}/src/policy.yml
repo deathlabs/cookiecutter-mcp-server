@@ -1,0 +1,13 @@
+---
+apiVersion: governance.toolkit/v1
+name: security-policy
+default_action: deny
+rules:
+  - name: block-destructive
+    condition: "action.type in ['drop', 'delete', 'truncate']"
+    action: deny
+    description: "Destructive operations require human approval"
+  - name: require-approval-for-send
+    condition: "action.type == 'send_email'"
+    action: require_approval
+    approvers: ["security-team"]

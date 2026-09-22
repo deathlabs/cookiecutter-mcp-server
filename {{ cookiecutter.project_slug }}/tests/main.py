@@ -7,8 +7,8 @@ from fastmcp import Client
 from fastmcp.utilities.skills import list_skills
 
 # Constants.
-SERVER = "Shinobi MCP Server"
-URL = getenv("MCP_URL", "http://localhost:8002/mcp")
+SERVER = "{{ cookiecutter.project_name }} MCP Server"
+URL = getenv("MCP_URL", "http://localhost:{{ cookiecutter.port }}/mcp")
 HEALTH_ATTEMPTS = 5
 HEALTH_RETRY_DELAY = 1
 GREEN = "\033[32m"
@@ -50,7 +50,7 @@ async def main() -> None:
             assert mcp_resource_contents[0].text, empty_skill_error
             print(f" {GREEN}✔{RESET} The {skill.name} skill is not empty")
 
-    print("[+] The Shinobi MCP Server is up-up")
+    print(f"[+] The {SERVER} is up-up")
 
 if __name__ == "__main__":
     run(main())

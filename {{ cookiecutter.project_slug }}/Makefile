@@ -96,13 +96,13 @@ format:
 .SILENT: secrets
 secrets:
 	echo "[*] Scanning the $(MCP_SERVER) source code for secrets"
-	trufflehog \
+	trufflehog filesystem \
 		--no-update \
 		--fail \
 		--fail-on-scan-errors \
 		--results=verified,unknown \
 		--log-level=-1 \
-		git "file://$(MCP_SERVER_WORKSPACE)"
+		"$(MCP_SERVER_WORKSPACE)"
 
 # ---------------------------------------------------------
 # Check the Dockerfile for quality.

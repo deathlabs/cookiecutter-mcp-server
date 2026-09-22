@@ -1,22 +1,24 @@
 services:
 
-  {{ cookiecutter.project_slug }}-mcp:
-    profiles: [ all ]
+  {{ cookiecutter.project_slug }}:
+    profiles: [all]
     build: src
     image: {{ cookiecutter.project_slug }}/mcp:latest
-    container_name: {{ cookiecutter.project_slug }}-mcp
+    container_name: {{ cookiecutter.project_slug }}_mcp
     ports:
       - "{{ cookiecutter.port }}:{{ cookiecutter.port }}"
     volumes:
-      - {{ cookiecutter.project_slug }}-workspace:/home/{{ cookiecutter.project_slug }}/workspace
-    env_file:
-      - src/.env
+      - {{ cookiecutter.project_slug }}_workspace:/home/{{ cookiecutter.project_slug }}/workspace
+    environment:
+      FASTMCP_PORT: "{{ cookiecutter.port }}"
     healthcheck:
-      test: ["CMD-SHELL", "wget -qO- http://127.0.0.1:{{ cookiecutter.port }}/api/v1/health > /dev/null || exit 1"]
+      test:
+        - CMD-SHELL
+        - wget -qO- http://127.0.0.1:{{ cookiecutter.port }}/api/v1/health > /dev/null || exit 1
       interval: 10s
       timeout: 5s
       retries: 2
       start_period: 5s
 
 volumes:
-  {{ cookiecutter.project_slug }}-workspace:
+  {{ cookiecutter.project_slug }}_workspace:
