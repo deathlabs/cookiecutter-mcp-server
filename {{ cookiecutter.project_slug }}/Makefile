@@ -95,6 +95,7 @@ secrets:
 		--fail-on-scan-errors \
 		--results=verified,unknown \
 		--log-level=-1 \
+		--exclude-paths src/trufflehog-exclusions.txt \
 		"$(MCP_SERVER_WORKSPACE)"
 
 # ---------------------------------------------------------

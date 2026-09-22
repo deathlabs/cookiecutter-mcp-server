@@ -1,0 +1,8 @@
+name = "{{ cookiecutter.custom_agent_name }}"
+description = "{{ cookiecutter.custom_agent_descriptions }}"
+developer_instructions = """
+{{ cookiecutter.custom_agent_developer_instructions }} 
+"""
+
+[mcp_servers.{{ cookiecutter.project_slug }}]
+url = "http://localhost:{{ cookiecutter.port }}/mcp"

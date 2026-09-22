@@ -35,5 +35,8 @@
   "year": 2026,
   "github_organization": "deathlabs",
   "github_repository": "{{ cookiecutter.github_organization }}/{{ cookiecutter.project_slug }}",
-  "port": 8002
+  "port": 8002,
+  "custom_agent_name": "${{ cookiecutter.project_name }}",
+  "custom_agent_description": "",
+  "custom_agent_developer_instructions": "1.0.0"
 }
