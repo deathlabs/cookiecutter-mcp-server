@@ -13,8 +13,6 @@ RUN apk add --no-cache python3=3.14.7-r1 uv=0.11.19-r0 && \
     uv sync --frozen --python /usr/bin/python3 && \
     addgroup -g 1000 {{ cookiecutter.project_slug }} &&\
     adduser -D -G {{ cookiecutter.project_slug }} -u 1000 {{ cookiecutter.project_slug }} -h /home/{{ cookiecutter.project_slug }}/ &&\
-    mkdir -p /home/{{ cookiecutter.project_slug }}/workspace &&\
-    chmod ug+rwx,o+rx,g+s /home/{{ cookiecutter.project_slug }}/workspace &&\
     chown -R {{ cookiecutter.project_slug }}:{{ cookiecutter.project_slug }} /home/{{ cookiecutter.project_slug }}/
 ENV PATH="/home/{{ cookiecutter.project_slug }}/.venv/bin:$PATH"
 USER 1000

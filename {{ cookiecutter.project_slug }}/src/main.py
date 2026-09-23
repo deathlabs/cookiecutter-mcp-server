@@ -12,39 +12,41 @@ from starlette.responses import JSONResponse
 # Local imports.
 from tools import TOOLS
 
-SECURITY_POLICY_FILE_PATH = "policy.yaml"
+POLICY_FILE_PATH = "policy.yaml"
 SKILLS_DIRECTORY = "skills"
 
 
-def get_security_policy(file_path: str = SECURITY_POLICY_FILE_PATH) -> str:
-    """Read the security policy from the provided file path.
+def get_policy(file_path: str = POLICY_FILE_PATH) -> str:
+    """Read the policy from the provided file path.
 
     Returns:
-        The security policy as a string.
+        The policy as a string.
     """
     with open(file=file_path, encoding="UTF-8", mode="r") as policy_file:
         return policy_file.read()
 
 
-def defang(fn: callable, policy: str, agent_id: str) -> callable:
-    """Wrap a function with governance checks.
+def apply_policy(fn: callable, policy: str, agent_id: str) -> callable:
+    """Return a policy-protected version of a function.
 
     Args:
-        fn: The function to wrap.
-        policy: The security policy to enforce.
-        agent_id: The ID of the agent to enforce the policy for.
+        fn: The function to protect.
+        policy: The policy to enforce.
+        agent_id: The agent identifier to use when evaluating the policy.
 
     Returns:
-        A wrapped function that enforces the security policy.
-
+        A function that checks the policy before calling `fn`.
     """
+
+    # Create a callable that evaluates the policy before invoking the function.
     governor = govern(fn=fn, policy=policy, agent_id=agent_id)
 
+    # Restore the function's signature so it can be registered as a tool.
     @wraps(fn)
-    def defanged_tool(*args, **kwargs):
+    def protected_function(*args, **kwargs):
         return governor(*args, **kwargs)
 
-    return defanged_tool
+    return protected_function
 
 
 def main() -> None:
@@ -61,16 +63,16 @@ def main() -> None:
     mcp = FastMCP(name="{{ cookiecutter.project_slug }}")
 
     # Read the policy file.
-    policy = get_security_policy()
+    policy = get_policy()
 
     # Register tools with the MCP server.
     for tool in TOOLS:
-        safe_tool = defang(
-            fn=tool,
+        tool_with_policy_applied = apply_policy(
+            tool,
             policy=policy,
             agent_id="{{ cookiecutter.project_slug }}",
         )
-        mcp.add_tool(safe_tool)
+        mcp.add_tool(tool_with_policy_applied)
 
     # Register skills with the MCP server.
     mcp.add_provider(
