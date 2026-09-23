@@ -1,13 +1,9 @@
 ---
 apiVersion: governance.toolkit/v1
 name: default-security-policy
-default_action: deny
+default_action: allow
 rules:
-  - name: block-destructive
-    condition: "action.type in ['edit', 'delete', 'drop', 'destroy', 'remove']"
+  - name: block-security-md-changes
+    condition: "record_id.value == 'observation-003'"
     action: deny
-    description: "Destructive operations require human approval"
-  - name: require-approval-for-send
-    condition: "action.type == 'send_email'"
-    action: require_approval
-    approvers: ["security-team"]
+    description: "Deleting observation 003 is not allowed."

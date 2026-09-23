@@ -16,10 +16,7 @@ TEMP_DIR := test
 build: clean
 	cookiecutter $(TEMPLATE_DIR) --no-input -o $(BUILD_DIR)
 	TARGET_DIR=$$(ls -d $(BUILD_DIR)/* | head -n 1) &&\
-	$(MAKE) --no-print-directory -C "$$TARGET_DIR" &&\
-	$(MAKE) --no-print-directory -C "$$TARGET_DIR" stop-container &&\
-	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container &&\
-	$(MAKE) --no-print-directory -C "$$TARGET_DIR" remove-container-image 
+	$(MAKE) --no-print-directory -C "$$TARGET_DIR" 
 
 # ---------------------------------------------------------
 # Test the cookiecutter template.

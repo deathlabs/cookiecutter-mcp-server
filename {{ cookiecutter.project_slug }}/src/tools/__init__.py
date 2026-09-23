@@ -1,3 +1,7 @@
-from .tools import rename_file
+from .tools import delete_record, get_record, list_records
 
-TOOLS = [rename_file]
+TOOLS = [
+    delete_record,
+    get_record,
+    list_records,
+]

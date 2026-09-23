@@ -1,5 +1,5 @@
 name = "{{ cookiecutter.custom_agent_name }}"
-description = "{{ cookiecutter.custom_agent_descriptions }}"
+description = "{{ cookiecutter.custom_agent_description }}"
 developer_instructions = """
 {{ cookiecutter.custom_agent_developer_instructions }} 
 """

@@ -1,0 +1,11 @@
+[mcp_servers.{{ cookiecutter.project_slug }}]
+url = "http://localhost:8002/mcp"
+
+[mcp_servers.{{ cookiecutter.project_slug }}.tools.list_records]
+approval_mode = "approve"
+
+[mcp_servers.{{ cookiecutter.project_slug }}.tools.get_record]
+approval_mode = "approve"
+
+[mcp_servers.{{ cookiecutter.project_slug }}.tools.delete_record]
+approval_mode = "approve"
