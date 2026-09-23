@@ -48,6 +48,7 @@ jobs:
 
       - name: Install Python Tools
         run: |
+          uv tool install cookiecutter
           uv tool install ruff
           uv tool install semgrep
           echo "$HOME/.local/bin" >> "$GITHUB_PATH"
