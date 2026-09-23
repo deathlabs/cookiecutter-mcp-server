@@ -3,7 +3,7 @@ apiVersion: governance.toolkit/v1
 name: default-security-policy
 default_action: allow
 rules:
-  - name: block-security-md-changes
+  - name: deny-deletion-of-observation-003
     condition: "record_id.value == 'observation-003'"
     action: deny
     description: "Deleting observation 003 is not allowed."
